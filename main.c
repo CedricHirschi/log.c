@@ -28,7 +28,12 @@ int main()
 
     log_set_time(current_time);
 
-    log_info("This is an info message with timestamp: %d", 7);
+    log_trace("This is a trace message with timestamp: %d", 7);
+    log_debug("This is a debug message with timestamp: %d", 8);
+    log_info("This is an info message with timestamp: %d", 9);
+    log_warn("This is a warning message with timestamp: %d", 10);
+    log_error("This is an error message with timestamp: %d", 11);
+    log_fatal("This is a fatal message with timestamp: %d", 12);
 
     if (log_file)
     {
