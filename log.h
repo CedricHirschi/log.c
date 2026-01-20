@@ -99,7 +99,7 @@ static void stdout_callback(log_Event *ev)
   else
   {
 #ifdef LOG_USE_COLOR
-    fprintf(ev->udata, "%%s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", level_colors[ev->level],
+    fprintf(ev->udata, "%s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", level_colors[ev->level],
             level_strings[ev->level], ev->file, ev->line);
 #else
     fprintf(ev->udata, "%-5s %s:%d: ", level_strings[ev->level], ev->file, ev->line);

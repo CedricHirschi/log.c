@@ -13,8 +13,6 @@ uint32_t current_time()
 
 int main()
 {
-    log_set_time(current_time);
-
     FILE *log_file = fopen("test.log", "w");
     if (log_file)
     {
@@ -27,6 +25,15 @@ int main()
     log_warn("This is a warning message: %d", 4);
     log_error("This is an error message: %d", 5);
     log_fatal("This is a fatal message: %d", 6);
+
+    log_set_time(current_time);
+
+    log_info("This is an info message with timestamp: %d", 7);
+
+    if (log_file)
+    {
+        fclose(log_file);
+    }
 
     return 0;
 }
