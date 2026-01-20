@@ -27,6 +27,7 @@ int main()
     log_fatal("This is a fatal message: %d", 6);
 
     log_set_time(current_time);
+    log_stdout_level = LOG_INFO; // Set minimum level for stdout
 
     log_trace("This is a trace message with timestamp: %d", 7);
     log_debug("This is a debug message with timestamp: %d", 8);

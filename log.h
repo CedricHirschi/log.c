@@ -50,13 +50,15 @@ typedef void (*log_LockFn)(bool lock, void *udata);
 
 typedef enum
 {
-  LOG_TRACE,
+  LOG_TRACE = 0,
   LOG_DEBUG,
   LOG_INFO,
   LOG_WARN,
   LOG_ERROR,
   LOG_FATAL
 } log_Level;
+
+int log_stdout_level = LOG_TRACE;
 
 #define log_trace(...) log_log(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) log_log(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
@@ -103,6 +105,11 @@ static const char *level_colors[] = {"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[3
 
 static void stdout_callback(log_Event *ev)
 {
+  if (ev->level < log_stdout_level)
+  {
+    return;
+  }
+
   if (L.time)
   {
 #ifdef LOG_USE_COLOR
