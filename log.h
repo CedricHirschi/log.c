@@ -58,7 +58,7 @@ typedef enum
   LOG_FATAL
 } log_Level;
 
-int log_stdout_level = LOG_TRACE;
+extern int log_stdout_level;
 
 #define log_trace(...) log_log(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) log_log(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
@@ -79,6 +79,8 @@ void log_log(log_Level level, const char *file, int line, const char *fmt, ...);
 
 #ifdef LOG_IMPLEMENTATION
 #include <stdio.h>
+
+int log_stdout_level = LOG_TRACE;
 
 typedef struct
 {
