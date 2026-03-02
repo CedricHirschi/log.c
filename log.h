@@ -79,6 +79,7 @@ void log_log(log_Level level, const char *file, int line, const char *fmt, ...);
 
 #ifdef LOG_IMPLEMENTATION
 #include <stdio.h>
+#include <inttypes.h>
 
 int log_stdout_level = LOG_TRACE;
 
@@ -115,10 +116,10 @@ static void stdout_callback(log_Event *ev)
   if (L.time)
   {
 #ifdef LOG_USE_COLOR
-    fprintf(ev->udata, "\x1b[90m[%02u:%02u:%02u.%03u]\x1b[0m %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", ev->time / 3600000, (ev->time / 60000) % 60, (ev->time / 1000) % 60, ev->time % 1000, level_colors[ev->level],
+    fprintf(ev->udata, "\x1b[90m[%02" PRIu32 ":%02" PRIu32 ":%02" PRIu32 ".%03" PRIu32 "]\x1b[0m %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", ev->time / 3600000, (ev->time / 60000) % 60, (ev->time / 1000) % 60, ev->time % 1000, level_colors[ev->level],
             level_strings[ev->level], ev->file, ev->line);
 #else
-    fprintf(ev->udata, "[%02u:%02u:%02u.%03u] %-5s %s:%d: ", ev->time / 3600000, (ev->time / 60000) % 60, (ev->time / 1000) % 60, ev->time % 1000, level_strings[ev->level], ev->file, ev->line);
+    fprintf(ev->udata, "[%02" PRIu32 ":%02" PRIu32 ":%02" PRIu32 ".%03" PRIu32 "] %-5s %s:%d: ", ev->time / 3600000, (ev->time / 60000) % 60, (ev->time / 1000) % 60, ev->time % 1000, level_strings[ev->level], ev->file, ev->line);
 #endif
   }
   else
@@ -140,7 +141,7 @@ static void file_callback(log_Event *ev)
   if (L.time)
   {
     fprintf(
-        ev->udata, "[%02u:%02u:%02u.%03u] %-5s %s:%d: ",
+        ev->udata, "[%02" PRIu32 ":%02" PRIu32 ":%02" PRIu32 ".%03" PRIu32 "] %-5s %s:%d: ",
         ev->time / 3600000, (ev->time / 60000) % 60, (ev->time / 1000) % 60, ev->time % 1000, level_strings[ev->level], ev->file, ev->line);
   }
   else
