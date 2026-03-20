@@ -60,12 +60,12 @@ typedef enum
 
 extern int log_stdout_level;
 
-#define log_trace(...) log_log(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
-#define log_debug(...) log_log(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define log_info(...) log_log(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define log_warn(...) log_log(LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
-#define log_error(...) log_log(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
-#define log_fatal(...) log_log(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
+#define log_trace(...) log_log(LOG_TRACE, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define log_debug(...) log_log(LOG_DEBUG, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define log_info(...) log_log(LOG_INFO, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define log_warn(...) log_log(LOG_WARN, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define log_error(...) log_log(LOG_ERROR, __FILE_NAME__, __LINE__, __VA_ARGS__)
+#define log_fatal(...) log_log(LOG_FATAL, __FILE_NAME__, __LINE__, __VA_ARGS__)
 
 const char *log_level_string(log_Level level);
 void log_set_time(log_TimeFn fn);
@@ -97,8 +97,9 @@ static struct
   log_LockFn lock;
   log_Level level;
   bool quiet;
+  bool callback_added;
   Callback callbacks[LOG_MAX_CALLBACKS];
-} L;
+} L = {0};
 
 static const char *level_strings[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
 
@@ -189,6 +190,7 @@ int log_add_callback(log_LogFn fn, void *udata, log_Level level)
   {
     if (!L.callbacks[i].fn)
     {
+      L.callback_added = true;
       L.callbacks[i] = (Callback){fn, udata, level};
       return 0;
     }
@@ -212,16 +214,16 @@ static void init_event(log_Event *ev, void *udata)
 
 void log_log(log_Level level, const char *file, int line, const char *fmt, ...)
 {
-  // Strip away path for file
-  const char *slash = file;
-  for (const char *p = file; *p; p++)
-  {
-    if (*p == '/' || *p == '\\')
-    {
-      slash = p + 1;
-    }
-  }
-  file = slash;
+  // // Strip away path for file (not needed with __FILE_NAME__)
+  // const char *slash = file;
+  // for (const char *p = file; *p; p++)
+  // {
+  //   if (*p == '/' || *p == '\\')
+  //   {
+  //     slash = p + 1;
+  //   }
+  // }
+  // file = slash;
 
   log_Event ev = {
       .fmt = fmt,
@@ -240,15 +242,18 @@ void log_log(log_Level level, const char *file, int line, const char *fmt, ...)
     va_end(ev.ap);
   }
 
-  for (int i = 0; i < LOG_MAX_CALLBACKS && L.callbacks[i].fn; i++)
+  if (L.callback_added)
   {
-    Callback *cb = &L.callbacks[i];
-    if (level >= cb->level)
+    for (int i = 0; i < LOG_MAX_CALLBACKS && L.callbacks[i].fn; i++)
     {
-      init_event(&ev, cb->udata);
-      va_start(ev.ap, fmt);
-      cb->fn(&ev);
-      va_end(ev.ap);
+      Callback *cb = &L.callbacks[i];
+      if (level >= cb->level)
+      {
+        init_event(&ev, cb->udata);
+        va_start(ev.ap, fmt);
+        cb->fn(&ev);
+        va_end(ev.ap);
+      }
     }
   }
 
